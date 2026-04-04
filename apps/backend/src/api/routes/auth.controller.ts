@@ -47,6 +47,12 @@ export class AuthController {
     @RealIP() ip: string,
     @UserAgent() userAgent: string
   ) {
+    // EOMA: disable public registration when running as microservice
+    if (process.env.DISABLE_PUBLIC_SIGNUP === 'true') {
+      response.status(403).json({ error: 'Registration is disabled' });
+      return;
+    }
+
     try {
       const getOrgFromCookie = this._authService.getOrgFromCookie(
         req?.cookies?.org

@@ -31,6 +31,7 @@ async function start() {
         'showorg',
         'impersonate',
         'x-copilotkit-runtime-client-gql-version',
+        'x-org-id', // EOMA: org context header from proxy
       ],
       exposedHeaders: [
         'reload',
@@ -43,6 +44,9 @@ async function start() {
         process.env.FRONTEND_URL,
         'http://localhost:6274',
         ...(process.env.MAIN_URL ? [process.env.MAIN_URL] : []),
+        // EOMA: allow EOMA backend proxy and frontend redirect origins
+        ...(process.env.BACKEND_PROXY_URL ? [process.env.BACKEND_PROXY_URL] : []),
+        ...(process.env.FRONTEND_REDIRECT_URL ? [process.env.FRONTEND_REDIRECT_URL] : []),
       ],
     },
   });

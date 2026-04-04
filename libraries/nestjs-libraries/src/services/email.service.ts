@@ -41,6 +41,10 @@ export class EmailService {
     addTo: 'top' | 'bottom',
     replyTo?: string
   ) {
+    // EOMA: suppress all email sending when running as microservice
+    if (process.env.DISABLE_EMAILS === 'true') {
+      return;
+    }
     return this._temporalService.client
       .getRawClient()
       ?.workflow.signalWithStart('sendEmailWorkflow', {

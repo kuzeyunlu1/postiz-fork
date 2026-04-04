@@ -1,0 +1,30 @@
+# EOMA: Backend-only Dockerfile (no Next.js frontend)
+# Builds NestJS backend + Temporal orchestrator worker
+FROM node:22.20-bookworm-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    g++ \
+    make \
+    python3-pip \
+    bash \
+&& rm -rf /var/lib/apt/lists/*
+
+RUN npm --no-update-notifier --no-fund --global install pnpm@10.6.1 pm2
+
+WORKDIR /app
+
+COPY . /app
+
+RUN pnpm install
+
+# Build backend + orchestrator only (skip frontend)
+RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm run build:backend
+RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm run build:orchestrator
+
+# Generate Prisma client
+RUN pnpm run prisma-generate || true
+
+EXPOSE 3000
+
+# Run prisma migrations, then start backend + orchestrator via PM2
+CMD ["sh", "-c", "pnpm run prisma-db-push && pm2 start pnpm --name backend -- --filter ./apps/backend start && pm2 start pnpm --name orchestrator -- --filter ./apps/orchestrator start && pm2 logs"]

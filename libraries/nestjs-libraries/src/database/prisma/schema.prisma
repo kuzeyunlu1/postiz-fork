@@ -1,11 +1,13 @@
 generator client {
   provider = "prisma-client-js"
   runtime  = "nodejs"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["postiz"]
 }
 
 model Organization {
@@ -47,6 +49,8 @@ model Organization {
   @@index([apiKey])
   @@index([streakSince])
   @@index([paymentId])
+
+  @@schema("postiz")
 }
 
 model Tags {
@@ -62,6 +66,8 @@ model Tags {
 
   @@index([orgId])
   @@index([deletedAt])
+
+  @@schema("postiz")
 }
 
 model TagsPosts {
@@ -74,6 +80,8 @@ model TagsPosts {
 
   @@id([postId, tagId])
   @@unique([postId, tagId])
+
+  @@schema("postiz")
 }
 
 model User {
@@ -120,6 +128,8 @@ model User {
   @@index([account])
   @@index([lastOnline])
   @@index([pictureId])
+
+  @@schema("postiz")
 }
 
 model UsedCodes {
@@ -131,6 +141,8 @@ model UsedCodes {
   organization Organization @relation(fields: [orgId], references: [id])
 
   @@index([code])
+
+  @@schema("postiz")
 }
 
 model UserOrganization {
@@ -146,6 +158,8 @@ model UserOrganization {
 
   @@unique([userId, organizationId])
   @@index([disabled])
+
+  @@schema("postiz")
 }
 
 model GitHub {
@@ -161,6 +175,8 @@ model GitHub {
 
   @@index([login])
   @@index([organizationId])
+
+  @@schema("postiz")
 }
 
 model Trending {
@@ -173,12 +189,16 @@ model Trending {
   updatedAt    DateTime @updatedAt
 
   @@index([hash])
+
+  @@schema("postiz")
 }
 
 model TrendingLog {
   id       String   @id @default(uuid())
   language String?
   date     DateTime
+
+  @@schema("postiz")
 }
 
 model ItemUser {
@@ -190,6 +210,8 @@ model ItemUser {
   @@unique([userId, key])
   @@index([userId])
   @@index([key])
+
+  @@schema("postiz")
 }
 
 model Star {
@@ -204,6 +226,8 @@ model Star {
   updatedAt  DateTime @updatedAt
 
   @@unique([login, date])
+
+  @@schema("postiz")
 }
 
 model Media {
@@ -228,6 +252,8 @@ model Media {
   @@index([name])
   @@index([organizationId])
   @@index([type])
+
+  @@schema("postiz")
 }
 
 model SocialMediaAgency {
@@ -257,6 +283,8 @@ model SocialMediaAgency {
   @@index([userId])
   @@index([deletedAt])
   @@index([id])
+
+  @@schema("postiz")
 }
 
 model SocialMediaAgencyNiche {
@@ -265,6 +293,8 @@ model SocialMediaAgencyNiche {
   agency   SocialMediaAgency @relation(fields: [agencyId], references: [id])
 
   @@id([agencyId, niche])
+
+  @@schema("postiz")
 }
 
 model Credits {
@@ -278,6 +308,8 @@ model Credits {
 
   @@index([organizationId])
   @@index([createdAt])
+
+  @@schema("postiz")
 }
 
 model Subscription {
@@ -296,6 +328,8 @@ model Subscription {
 
   @@index([organizationId])
   @@index([deletedAt])
+
+  @@schema("postiz")
 }
 
 model Customer {
@@ -309,6 +343,8 @@ model Customer {
   integrations Integration[]
 
   @@unique([orgId, name, deletedAt])
+
+  @@schema("postiz")
 }
 
 model Integration {
@@ -353,6 +389,8 @@ model Integration {
   @@index([inBetweenSteps])
   @@index([refreshNeeded])
   @@index([disabled])
+
+  @@schema("postiz")
 }
 
 model Signatures {
@@ -368,6 +406,8 @@ model Signatures {
   @@index([createdAt])
   @@index([organizationId])
   @@index([deletedAt])
+
+  @@schema("postiz")
 }
 
 model Comments {
@@ -388,6 +428,8 @@ model Comments {
   @@index([userId])
   @@index([postId])
   @@index([deletedAt])
+
+  @@schema("postiz")
 }
 
 model Post {
@@ -441,6 +483,8 @@ model Post {
   @@index([updatedAt])
   @@index([releaseURL])
   @@index([integrationId])
+
+  @@schema("postiz")
 }
 
 model Notifications {
@@ -456,6 +500,8 @@ model Notifications {
   @@index([createdAt])
   @@index([organizationId])
   @@index([deletedAt])
+
+  @@schema("postiz")
 }
 
 model MessagesGroup {
@@ -475,6 +521,8 @@ model MessagesGroup {
   @@index([createdAt])
   @@index([updatedAt])
   @@index([buyerOrganizationId])
+
+  @@schema("postiz")
 }
 
 model PayoutProblems {
@@ -489,6 +537,8 @@ model PayoutProblems {
   order     Orders   @relation(fields: [orderId], references: [id])
   post      Post?    @relation(fields: [postId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
+
+  @@schema("postiz")
 }
 
 model Orders {
@@ -512,6 +562,8 @@ model Orders {
   @@index([updatedAt])
   @@index([createdAt])
   @@index([messageGroupId])
+
+  @@schema("postiz")
 }
 
 model OrderItems {
@@ -525,6 +577,8 @@ model OrderItems {
 
   @@index([orderId])
   @@index([integrationId])
+
+  @@schema("postiz")
 }
 
 model Messages {
@@ -542,6 +596,8 @@ model Messages {
   @@index([groupId])
   @@index([createdAt])
   @@index([deletedAt])
+
+  @@schema("postiz")
 }
 
 model Plugs {
@@ -556,6 +612,8 @@ model Plugs {
 
   @@unique([plugFunction, integrationId])
   @@index([organizationId])
+
+  @@schema("postiz")
 }
 
 model ExisingPlugData {
@@ -566,6 +624,8 @@ model ExisingPlugData {
   integration   Integration @relation(fields: [integrationId], references: [id])
 
   @@unique([integrationId, methodName, value])
+
+  @@schema("postiz")
 }
 
 model PopularPosts {
@@ -576,6 +636,8 @@ model PopularPosts {
   hook      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@schema("postiz")
 }
 
 model IntegrationsWebhooks {
@@ -588,6 +650,8 @@ model IntegrationsWebhooks {
   @@unique([integrationId, webhookId])
   @@index([integrationId])
   @@index([webhookId])
+
+  @@schema("postiz")
 }
 
 model Webhooks {
@@ -603,6 +667,8 @@ model Webhooks {
 
   @@index([organizationId])
   @@index([deletedAt])
+
+  @@schema("postiz")
 }
 
 model AutoPost {
@@ -624,6 +690,8 @@ model AutoPost {
   organization    Organization @relation(fields: [organizationId], references: [id])
 
   @@index([deletedAt])
+
+  @@schema("postiz")
 }
 
 model Sets {
@@ -636,6 +704,8 @@ model Sets {
   organization   Organization @relation(fields: [organizationId], references: [id])
 
   @@index([organizationId])
+
+  @@schema("postiz")
 }
 
 model ThirdParty {
@@ -653,6 +723,8 @@ model ThirdParty {
   @@unique([organizationId, internalId])
   @@index([organizationId])
   @@index([deletedAt])
+
+  @@schema("postiz")
 }
 
 model Errors {
@@ -669,6 +741,8 @@ model Errors {
 
   @@index([organizationId])
   @@index([createdAt])
+
+  @@schema("postiz")
 }
 
 model Mentions {
@@ -681,6 +755,8 @@ model Mentions {
 
   @@id([name, username, platform, image])
   @@index([createdAt])
+
+  @@schema("postiz")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -712,6 +788,8 @@ model mastra_ai_spans {
   @@index([spanType, startedAt(sort: Desc)], map: "public_mastra_ai_spans_spantype_startedat_idx")
   @@index([traceId, startedAt(sort: Desc)], map: "public_mastra_ai_spans_traceid_startedat_idx")
   @@ignore
+
+  @@schema("postiz")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -732,6 +810,8 @@ model mastra_evals {
 
   @@index([agent_name, created_at(sort: Desc)], map: "public_mastra_evals_agent_name_created_at_idx")
   @@ignore
+
+  @@schema("postiz")
 }
 
 model mastra_messages {
@@ -745,6 +825,8 @@ model mastra_messages {
   createdAtZ DateTime? @default(now()) @db.Timestamptz(6)
 
   @@index([thread_id, createdAt(sort: Desc)], map: "public_mastra_messages_thread_id_createdat_idx")
+
+  @@schema("postiz")
 }
 
 model mastra_resources {
@@ -755,6 +837,8 @@ model mastra_resources {
   updatedAt     DateTime  @db.Timestamp(6)
   createdAtZ    DateTime? @default(now()) @db.Timestamptz(6)
   updatedAtZ    DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@schema("postiz")
 }
 
 model mastra_scorers {
@@ -792,6 +876,8 @@ model mastra_scorers {
   spanId               String?
 
   @@index([traceId, spanId, createdAt(sort: Desc)], map: "public_mastra_scores_trace_id_span_id_created_at_idx")
+
+  @@schema("postiz")
 }
 
 model mastra_threads {
@@ -805,6 +891,8 @@ model mastra_threads {
   updatedAtZ DateTime? @default(now()) @db.Timestamptz(6)
 
   @@index([resourceId, createdAt(sort: Desc)], map: "public_mastra_threads_resourceid_createdat_idx")
+
+  @@schema("postiz")
 }
 
 model mastra_traces {
@@ -825,6 +913,8 @@ model mastra_traces {
   createdAtZ   DateTime? @default(now()) @db.Timestamptz(6)
 
   @@index([name, startTime(sort: Desc)], map: "public_mastra_traces_name_starttime_idx")
+
+  @@schema("postiz")
 }
 
 model mastra_workflow_snapshot {
@@ -838,6 +928,8 @@ model mastra_workflow_snapshot {
   updatedAtZ    DateTime? @default(now()) @db.Timestamptz(6)
 
   @@unique([workflow_name, run_id], map: "public_mastra_workflow_snapshot_workflow_name_run_id_key")
+
+  @@schema("postiz")
 }
 
 model OAuthApp {
@@ -860,6 +952,8 @@ model OAuthApp {
   @@index([clientId])
   @@index([organizationId])
   @@index([deletedAt])
+
+  @@schema("postiz")
 }
 
 model OAuthAuthorization {
@@ -884,6 +978,8 @@ model OAuthAuthorization {
   @@index([userId])
   @@index([organizationId])
   @@index([revokedAt])
+
+  @@schema("postiz")
 }
 
 enum OrderStatus {
@@ -891,11 +987,15 @@ enum OrderStatus {
   ACCEPTED
   CANCELED
   COMPLETED
+
+  @@schema("postiz")
 }
 
 enum From {
   BUYER
   SELLER
+
+  @@schema("postiz")
 }
 
 enum State {
@@ -903,6 +1003,8 @@ enum State {
   PUBLISHED
   ERROR
   DRAFT
+
+  @@schema("postiz")
 }
 
 enum SubscriptionTier {
@@ -910,11 +1012,15 @@ enum SubscriptionTier {
   PRO
   TEAM
   ULTIMATE
+
+  @@schema("postiz")
 }
 
 enum Period {
   MONTHLY
   YEARLY
+
+  @@schema("postiz")
 }
 
 enum Provider {
@@ -924,30 +1030,40 @@ enum Provider {
   FARCASTER
   WALLET
   GENERIC
+
+  @@schema("postiz")
 }
 
 enum Role {
   SUPERADMIN
   ADMIN
   USER
+
+  @@schema("postiz")
 }
 
 enum APPROVED_SUBMIT_FOR_ORDER {
   NO
   WAITING_CONFIRMATION
   YES
+
+  @@schema("postiz")
 }
 
 enum ShortLinkPreference {
   ASK
   YES
   NO
+
+  @@schema("postiz")
 }
 
 enum AnnouncementColor {
   INFO
   WARNING
   ERROR
+
+  @@schema("postiz")
 }
 
 model Announcement {
@@ -956,4 +1072,6 @@ model Announcement {
   description String
   color       AnnouncementColor @default(INFO)
   createdAt   DateTime          @default(now())
+
+  @@schema("postiz")
 }

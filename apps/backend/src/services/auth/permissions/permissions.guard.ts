@@ -20,6 +20,11 @@ export class PoliciesGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // EOMA: bypass all billing/subscription checks when running as microservice
+    if (process.env.DISABLE_BILLING_CHECKS === 'true') {
+      return true;
+    }
+
     const request: Request = context.switchToHttp().getRequest();
     if (
       request.path.indexOf('/auth') > -1 ||
