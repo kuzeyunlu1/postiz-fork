@@ -10,28 +10,33 @@ export class TemporalRegister implements OnModuleInit {
     if (process.env.TEMPORAL_TLS === 'true') {
       return;
     }
-    const connection = this._client?.client?.getRawClient()
-      ?.connection as Connection;
+    try {
+      const connection = this._client?.client?.getRawClient()
+        ?.connection as Connection;
 
-    const { customAttributes } =
-      await connection.operatorService.listSearchAttributes({
-        namespace: process.env.TEMPORAL_NAMESPACE || 'default',
-      });
+      const { customAttributes } =
+        await connection.operatorService.listSearchAttributes({
+          namespace: process.env.TEMPORAL_NAMESPACE || 'default',
+        });
 
-    const neededAttribute = ['organizationId', 'postId'];
-    const missingAttributes = neededAttribute.filter(
-      (attr) => !customAttributes[attr]
-    );
+      const neededAttribute = ['organizationId', 'postId'];
+      const missingAttributes = neededAttribute.filter(
+        (attr) => !customAttributes[attr]
+      );
 
-    if (missingAttributes.length > 0) {
-      await connection.operatorService.addSearchAttributes({
-        namespace: process.env.TEMPORAL_NAMESPACE || 'default',
-        searchAttributes: missingAttributes.reduce((all, current) => {
-          // @ts-ignore
-          all[current] = 1;
-          return all;
-        }, {}),
-      });
+      if (missingAttributes.length > 0) {
+        await connection.operatorService.addSearchAttributes({
+          namespace: process.env.TEMPORAL_NAMESPACE || 'default',
+          searchAttributes: missingAttributes.reduce((all, current) => {
+            // @ts-ignore
+            // Type 2 = KEYWORD (exact match), appropriate for IDs
+            all[current] = 2;
+            return all;
+          }, {}),
+        });
+      }
+    } catch (e) {
+      console.error('Failed to register Temporal search attributes (non-fatal):', e?.message || e);
     }
   }
 }
