@@ -51,7 +51,11 @@ async function start() {
     },
   });
 
-  await startMcp(app);
+  if (process.env.ENABLE_AI === 'true') {
+    await startMcp(app);
+  } else {
+    console.log('AI/MCP features disabled (set ENABLE_AI=true to enable)');
+  }
 
   app.useGlobalPipes(
     new ValidationPipe({

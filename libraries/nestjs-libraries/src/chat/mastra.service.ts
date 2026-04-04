@@ -9,6 +9,9 @@ export class MastraService {
   static mastra: Mastra;
   constructor(private _loadToolsService: LoadToolsService) {}
   async mastra() {
+    if (process.env.ENABLE_AI !== 'true') {
+      throw new Error('AI features are disabled (set ENABLE_AI=true to enable)');
+    }
     MastraService.mastra =
       MastraService.mastra ||
       new Mastra({

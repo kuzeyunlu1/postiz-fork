@@ -4,7 +4,11 @@ import { PostgresStore } from '@mastra/pg';
 // Mastra's pg pool doesn't understand these and they cause connection failures
 const dbUrl = (process.env.DATABASE_URL || '').replace(/[?&]schema=[^&]+/g, '').replace(/[?&]connection_limit=[^&]+/g, '').replace(/\?$/, '');
 
-export const pStore = new PostgresStore({
-  id: 'postiz-store',
-  connectionString: dbUrl || process.env.DATABASE_URL!,
-});
+// Only create store if AI features are enabled — otherwise Mastra pg pool
+// exhausts Supabase pooler connections and crashes the backend
+export const pStore = process.env.ENABLE_AI === 'true'
+  ? new PostgresStore({
+      id: 'postiz-store',
+      connectionString: dbUrl || process.env.DATABASE_URL!,
+    })
+  : (null as any);

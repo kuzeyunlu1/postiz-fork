@@ -64,6 +64,10 @@ export class CopilotController {
     @Res() res: Response,
     @GetOrgFromRequest() organization: Organization
   ) {
+    if (process.env.ENABLE_AI !== 'true') {
+      res.status(503).json({ error: 'AI features are disabled' });
+      return;
+    }
     if (
       process.env.OPENAI_API_KEY === undefined ||
       process.env.OPENAI_API_KEY === ''
@@ -120,6 +124,9 @@ export class CopilotController {
     @GetOrgFromRequest() organization: Organization,
     @Param('thread') threadId: string
   ): Promise<any> {
+    if (process.env.ENABLE_AI !== 'true') {
+      return { messages: [] };
+    }
     const mastra = await this._mastraService.mastra();
     const memory = await mastra.getAgent('postiz').getMemory();
     try {
@@ -135,6 +142,9 @@ export class CopilotController {
   @Get('/list')
   @CheckPolicies([AuthorizationActions.Create, Sections.AI])
   async getList(@GetOrgFromRequest() organization: Organization) {
+    if (process.env.ENABLE_AI !== 'true') {
+      return { threads: [] };
+    }
     const mastra = await this._mastraService.mastra();
     const memory = await mastra.getAgent('postiz').getMemory();
     const list = await memory.listThreads({
