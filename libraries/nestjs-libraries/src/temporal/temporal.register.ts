@@ -36,7 +36,7 @@ export class TemporalRegister implements OnModuleInit {
         });
       }
     } catch (e) {
-      console.error('Failed to register Temporal search attributes (non-fatal):', e?.message || e);
+      console.error('Failed to register Temporal search attributes (non-fatal):', (e as any)?.message || e);
     }
   }
 }
