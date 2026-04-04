@@ -8,6 +8,12 @@ import { getCookieUrlFromDomain } from '@gitroom/helpers/subdomain/subdomain.man
 import { HttpForbiddenException } from '@gitroom/nestjs-libraries/services/exception.filter';
 import { MastraService } from '@gitroom/nestjs-libraries/chat/mastra.service';
 
+// EOMA: extract JWT from standard Authorization: Bearer header
+function extractBearer(header?: string): string | undefined {
+  if (!header) return undefined;
+  return header.startsWith('Bearer ') ? header.slice(7) : header;
+}
+
 export const removeAuth = (res: Response) => {
   res.cookie('auth', '', {
     domain: getCookieUrlFromDomain(process.env.FRONTEND_URL!),
@@ -31,13 +37,15 @@ export class AuthMiddleware implements NestMiddleware {
     private _userService: UsersService
   ) {}
   async use(req: Request, res: Response, next: NextFunction) {
-    const auth = req.headers.auth || req.cookies.auth;
+    // EOMA: also accept standard Authorization: Bearer header from proxy
+    const auth = req.headers.auth || req.cookies.auth || extractBearer(req.headers.authorization as string);
     if (!auth) {
       throw new HttpForbiddenException();
     }
     try {
       let user = AuthService.verifyJWT(auth) as User | null;
-      const orgHeader = req.cookies.showorg || req.headers.showorg;
+      // EOMA: also accept x-org-id header from proxy
+      const orgHeader = req.cookies.showorg || req.headers.showorg || (req.headers['x-org-id'] as string);
 
       if (!user) {
         throw new HttpForbiddenException();

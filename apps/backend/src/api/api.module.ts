@@ -43,6 +43,7 @@ import { GoogleProvider } from '@gitroom/backend/services/auth/providers/google.
 import { FarcasterProvider } from '@gitroom/backend/services/auth/providers/farcaster.provider';
 import { WalletProvider } from '@gitroom/backend/services/auth/providers/wallet.provider';
 import { OauthProvider } from '@gitroom/backend/services/auth/providers/oauth.provider';
+import { ServiceAccountController } from '@gitroom/backend/api/routes/service-account.controller';
 
 const authenticatedController = [
   UsersController,
@@ -75,6 +76,7 @@ const authenticatedController = [
     EnterpriseController,
     NoAuthIntegrationsController,
     OAuthController,
+    ServiceAccountController,
     ...authenticatedController,
   ],
   providers: [

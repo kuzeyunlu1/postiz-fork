@@ -257,6 +257,25 @@ export class OrganizationRepository {
     return create;
   }
 
+  // EOMA: create org for service account (no new user, links existing user)
+  async createOrgForServiceAccount(name: string, serviceUserId: string) {
+    return this._organization.model.organization.create({
+      data: {
+        name,
+        apiKey: AuthService.fixedEncryption(makeId(20)),
+        allowTrial: false,
+        isTrailing: false,
+        users: {
+          create: {
+            role: Role.SUPERADMIN,
+            userId: serviceUserId,
+          },
+        },
+      },
+      select: { id: true, apiKey: true },
+    });
+  }
+
   async createOrgAndUser(
     body: Omit<CreateOrgUserDto, 'providerToken'> & { providerId?: string },
     hasEmail: boolean,
