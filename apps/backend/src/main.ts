@@ -14,7 +14,7 @@ try {
 import compression from 'compression';
 
 import { loadSwagger } from '@gitroom/helpers/swagger/load.swagger';
-import { json } from 'express';
+import express, { json } from 'express';
 console.log('EOMA: [3/6] Importing @temporalio/worker...');
 import { Runtime } from '@temporalio/worker';
 try {
@@ -87,6 +87,11 @@ async function start() {
 
   app.use(cookieParser());
   app.use(compression());
+
+  // EOMA: Serve uploaded files — backend-only mode has no Next.js frontend to handle /uploads
+  const uploadDir = process.env.UPLOAD_DIRECTORY || '/uploads';
+  app.use('/uploads', express.static(uploadDir));
+
   app.useGlobalFilters(new SubscriptionExceptionFilter());
   app.useGlobalFilters(new HttpExceptionFilter());
 

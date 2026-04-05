@@ -59,7 +59,9 @@ export class LocalStorage implements IUploadProvider {
     // Logic to save the file to the filesystem goes here
     writeFileSync(filePath, Buffer.from(await loadImage.arrayBuffer()));
 
-    return process.env.FRONTEND_URL + '/uploads' + publicPath;
+    // EOMA: Use UPLOAD_BASE_URL or MAIN_URL so URLs point to Postiz backend, not EOMA frontend
+    const uploadBaseUrl = process.env.UPLOAD_BASE_URL || process.env.MAIN_URL || process.env.FRONTEND_URL;
+    return uploadBaseUrl + '/uploads' + publicPath;
   }
 
   async uploadFile(file: Express.Multer.File): Promise<any> {
@@ -92,7 +94,8 @@ export class LocalStorage implements IUploadProvider {
 
       return {
         filename: `${randomName}${safeExt}`,
-        path: process.env.FRONTEND_URL + '/uploads' + publicPath,
+        // EOMA: Use UPLOAD_BASE_URL or MAIN_URL so URLs point to Postiz backend, not EOMA frontend
+        path: (process.env.UPLOAD_BASE_URL || process.env.MAIN_URL || process.env.FRONTEND_URL) + '/uploads' + publicPath,
         mimetype: safeMime,
         originalname: `${randomName}${safeExt}`,
       };
