@@ -22,12 +22,15 @@ RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm run build:backend
 RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm run build:orchestrator
 
 # Generate Prisma client
-RUN pnpm run prisma-generate || true
+RUN pnpm run prisma-generate
 
 EXPOSE 3000
 
 # Create empty .env so dotenv-cli doesn't hang
 RUN touch /app/.env
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD node -e "fetch('http://localhost:3000/').then(r=>{if(!r.ok)throw r.status}).catch(()=>process.exit(1))"
 
 # Run prisma migrations, then start backend + orchestrator via PM2
 CMD ["sh", "-c", "pnpm run prisma-db-push && pm2 start pnpm --name backend -- --filter ./apps/backend start && pm2 start pnpm --name orchestrator -- --filter ./apps/orchestrator start && pm2 logs"]

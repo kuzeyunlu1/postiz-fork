@@ -57,6 +57,9 @@ if (!schema.includes('multiSchema')) {
 }
 
 // 3. Add @@schema("postiz") to every model that doesn't have it
+// NOTE: The non-greedy [\s\S]*? regex below matches the shortest stretch to the
+// next closing "\n}". This works for current Prisma models (flat field lists) but
+// would need updating if nested brace patterns (e.g. composite types) are introduced.
 let modelsAnnotated = 0;
 schema = schema.replace(
   /^(model\s+(\w+)\s*\{[\s\S]*?)(\n\})/gm,

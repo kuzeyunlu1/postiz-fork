@@ -63,6 +63,11 @@ export class EmailService {
     html: string,
     replyTo?: string
   ) {
+    // EOMA: suppress all email sending when running as microservice
+    if (process.env.DISABLE_EMAILS === 'true') {
+      return;
+    }
+
     if (to.indexOf('@') === -1) {
       return;
     }

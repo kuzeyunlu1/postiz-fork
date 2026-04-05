@@ -265,6 +265,14 @@ export class OrganizationRepository {
         apiKey: AuthService.fixedEncryption(makeId(20)),
         allowTrial: false,
         isTrailing: false,
+        subscription: {
+          create: {
+            totalChannels: 1000000,
+            subscriptionTier: 'ULTIMATE',
+            isLifetime: true,
+            period: 'YEARLY',
+          },
+        },
         users: {
           create: {
             role: Role.SUPERADMIN,

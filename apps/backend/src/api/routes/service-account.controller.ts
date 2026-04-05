@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Headers,
@@ -27,8 +28,22 @@ export class ServiceAccountController {
       throw new HttpForbiddenException();
     }
 
-    if (!body.name || !body.serviceUserId) {
-      throw new HttpForbiddenException();
+    if (
+      !body.name ||
+      typeof body.name !== 'string' ||
+      body.name.length < 1 ||
+      body.name.length > 256
+    ) {
+      throw new BadRequestException('name must be a string between 1 and 256 characters');
+    }
+
+    if (
+      !body.serviceUserId ||
+      typeof body.serviceUserId !== 'string' ||
+      body.serviceUserId.length < 1 ||
+      body.serviceUserId.length > 256
+    ) {
+      throw new BadRequestException('serviceUserId must be a string between 1 and 256 characters');
     }
 
     const org = await this._organizationRepository.createOrgForServiceAccount(
