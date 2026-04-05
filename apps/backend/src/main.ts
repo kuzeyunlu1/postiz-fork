@@ -1,11 +1,28 @@
+// EOMA: Startup diagnostics — track where the backend hangs/crashes
+process.on('uncaughtException', (err) => { console.error('EOMA: UNCAUGHT EXCEPTION:', err); process.exit(1); });
+process.on('unhandledRejection', (reason) => { console.error('EOMA: UNHANDLED REJECTION:', reason); });
+console.log('EOMA: [1/6] main.ts top-level executing...');
+
 import { initializeSentry } from '@gitroom/nestjs-libraries/sentry/initialize.sentry';
-initializeSentry('backend', true);
+try {
+  initializeSentry('backend', true);
+  console.log('EOMA: [2/6] Sentry initialized (or skipped — no DSN)');
+} catch (e: any) {
+  console.error('EOMA: Sentry init failed:', e?.message || e);
+}
+
 import compression from 'compression';
 
 import { loadSwagger } from '@gitroom/helpers/swagger/load.swagger';
 import { json } from 'express';
+console.log('EOMA: [3/6] Importing @temporalio/worker...');
 import { Runtime } from '@temporalio/worker';
-Runtime.install({ shutdownSignals: [] });
+try {
+  Runtime.install({ shutdownSignals: [] });
+  console.log('EOMA: [4/6] Temporal Runtime installed');
+} catch (e: any) {
+  console.error('EOMA: Temporal Runtime.install() failed:', e?.message || e);
+}
 
 process.env.TZ = 'UTC';
 
@@ -20,6 +37,7 @@ import { ConfigurationChecker } from '@gitroom/helpers/configuration/configurati
 import { startMcp } from '@gitroom/nestjs-libraries/chat/start.mcp';
 
 async function start() {
+  console.log('EOMA: [5/6] Creating NestJS application...');
   const app = await NestFactory.create(AppModule, {
     rawBody: true,
     cors: {
@@ -77,6 +95,7 @@ async function start() {
   const port = process.env.PORT || 3000;
 
   try {
+    console.log('EOMA: [6/6] Calling app.listen(' + port + ')...');
     await app.listen(port);
     console.log('Backend started successfully on port ' + port);
 
