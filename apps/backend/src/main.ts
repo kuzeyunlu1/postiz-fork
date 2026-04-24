@@ -45,11 +45,12 @@ async function start() {
       allowedHeaders: [
         'Content-Type',
         'Authorization',
-        'auth',
-        'showorg',
-        'impersonate',
         'x-copilotkit-runtime-client-gql-version',
         'x-org-id', // EOMA: org context header from proxy
+        // EOMA: auth/showorg/impersonate are admin/impersonation headers — only
+        // allow them in dev (NOT_SECURED); production EOMA is backend-only
+        // fronted by a proxy and must not accept these from clients.
+        ...(process.env.NOT_SECURED ? ['auth', 'showorg', 'impersonate'] : []),
       ],
       exposedHeaders: [
         'reload',
