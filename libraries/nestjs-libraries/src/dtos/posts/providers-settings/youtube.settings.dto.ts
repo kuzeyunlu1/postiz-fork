@@ -1,5 +1,5 @@
 import {
-  IsArray, IsDefined, IsIn, IsOptional, IsString, MaxLength, MinLength, ValidateNested
+  IsArray, IsBoolean, IsDefined, IsIn, IsOptional, IsString, MaxLength, MinLength, ValidateNested
 } from 'class-validator';
 import { MediaDto } from '@gitroom/nestjs-libraries/dtos/media/media.dto';
 import { Type } from 'class-transformer';
@@ -37,4 +37,12 @@ export class YoutubeSettingsDto {
   @ValidateNested()
   @Type(() => YoutubeTagsSettings)
   tags: YoutubeTagsSettings[];
+
+  @IsOptional()
+  @IsString()
+  category_id?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  is_short?: boolean;
 }

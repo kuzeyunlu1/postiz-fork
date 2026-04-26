@@ -240,7 +240,7 @@ export class WordpressProvider
               strict: true,
               trim: true,
             }),
-            status: 'publish',
+            status: postDetails?.[0]?.settings?.status ?? 'publish',
             ...(mediaId ? { featured_media: mediaId } : {}),
           }),
         }

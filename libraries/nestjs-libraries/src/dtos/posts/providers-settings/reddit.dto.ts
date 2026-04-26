@@ -2,6 +2,7 @@ import {
   ArrayMinSize,
   IsBoolean,
   IsDefined,
+  IsOptional,
   IsString,
   IsUrl,
   Matches,
@@ -64,6 +65,10 @@ export class RedditSettingsDtoInner {
   @ValidateNested()
   @Type(() => RedditFlairDto)
   flair: RedditFlairDto;
+
+  @IsOptional()
+  @IsBoolean()
+  nsfw?: boolean;
 }
 
 export class RedditSettingsValueDto {

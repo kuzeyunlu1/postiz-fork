@@ -1,5 +1,8 @@
 import {
+  IsArray,
   IsDefined,
+  IsIn,
+  IsNumber,
   IsOptional,
   IsString,
   MinLength,
@@ -22,4 +25,21 @@ export class WordpressDto {
   @IsString()
   @IsDefined()
   type: string;
+
+  @IsOptional()
+  @IsIn(['publish', 'draft', 'pending'])
+  status?: 'publish' | 'draft' | 'pending';
+
+  @IsOptional()
+  @IsNumber()
+  category_id?: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+
+  @IsOptional()
+  @IsString()
+  slug?: string;
 }
