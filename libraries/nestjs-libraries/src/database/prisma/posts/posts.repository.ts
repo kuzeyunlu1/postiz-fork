@@ -787,6 +787,7 @@ export class PostsRepository {
         orgId,
         name: body.name,
         color: body.color,
+        description: body.description,
       },
     });
   }
@@ -799,6 +800,7 @@ export class PostsRepository {
       data: {
         name: body.name,
         color: body.color,
+        description: body.description,
       },
     });
   }
