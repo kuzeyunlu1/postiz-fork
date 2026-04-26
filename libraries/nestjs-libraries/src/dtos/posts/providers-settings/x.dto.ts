@@ -1,4 +1,11 @@
-import { IsBoolean, IsIn, IsOptional, Matches } from 'class-validator';
+import {
+  IsBoolean,
+  IsIn,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+} from 'class-validator';
 
 export class XDto {
   @IsOptional()
@@ -23,4 +30,9 @@ export class XDto {
   @IsOptional()
   @IsBoolean()
   paid_partnership?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(280)
+  thread_finisher?: string;
 }

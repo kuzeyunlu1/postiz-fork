@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class LinkedinDto {
   @IsBoolean()
@@ -8,4 +8,12 @@ export class LinkedinDto {
   @IsString()
   @IsOptional()
   carousel_name?: string;
+
+  @IsOptional()
+  @IsIn(['text', 'image', 'document', 'article'])
+  media_type?: 'text' | 'image' | 'document' | 'article';
+
+  @IsOptional()
+  @IsString()
+  document_url?: string;
 }

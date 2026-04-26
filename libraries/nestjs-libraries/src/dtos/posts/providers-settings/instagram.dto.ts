@@ -1,9 +1,14 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsDefined,
   IsIn,
+  IsNumber,
   IsString,
+  Max,
+  MaxLength,
+  Min,
   ValidateNested,
   IsOptional,
 } from 'class-validator';
@@ -30,4 +35,28 @@ export class InstagramDto {
   @IsArray()
   @IsOptional()
   collaborators: Collaborators[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  alt_texts?: string[];
+
+  @IsOptional()
+  @IsString()
+  location_id?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2200)
+  first_comment?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(60)
+  cover_frame_seconds?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  is_reel?: boolean;
 }
