@@ -133,7 +133,8 @@ export class PostsService {
     orgId: string,
     postId: string,
     date: number,
-    forceRefresh = false
+    forceRefresh = false,
+    range?: { startDate?: string; endDate?: string }
   ): Promise<AnalyticsData[] | { missing: true }> {
     const post = await this._postRepository.getPostById(postId, orgId);
     if (!post || !post.releaseId) {
@@ -179,9 +180,13 @@ export class PostsService {
       }
     }
 
-    // const getIntegrationData = await ioRedis.get(
-    //   `integration:${orgId}:${post.id}:${date}`
-    // );
+    // EOMA Sprint 5 patch: derive provider-day-window from explicit ISO range
+    // when supplied; otherwise keep the existing numeric `date` contract.
+    const dayWindow = this._resolvePostAnalyticsDayWindow(date, range);
+    const cacheSegment = this._postAnalyticsCacheSegment(date, range);
+    const cacheKey = `integration:${orgId}:${post.id}:${cacheSegment}`;
+
+    // const getIntegrationData = await ioRedis.get(cacheKey);
     // if (getIntegrationData) {
     //   return JSON.parse(getIntegrationData);
     // }
@@ -191,10 +196,10 @@ export class PostsService {
         getIntegration.internalId,
         getIntegration.token,
         post.releaseId,
-        date
+        dayWindow
       );
       await ioRedis.set(
-        `integration:${orgId}:${post.id}:${date}`,
+        cacheKey,
         JSON.stringify(loadAnalytics),
         'EX',
         !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
@@ -205,11 +210,37 @@ export class PostsService {
     } catch (e) {
       console.log(e);
       if (e instanceof RefreshToken) {
-        return this.checkPostAnalytics(orgId, postId, date, true);
+        return this.checkPostAnalytics(orgId, postId, date, true, range);
       }
     }
 
     return [];
+  }
+
+  // EOMA Sprint 5 patch helper: see IntegrationService for rationale. Kept as a
+  // local private rather than a shared util so the patch surface stays small.
+  private _resolvePostAnalyticsDayWindow(
+    date: number,
+    range?: { startDate?: string; endDate?: string }
+  ): number {
+    if (range?.startDate && range?.endDate) {
+      const start = dayjs(range.startDate);
+      const end = dayjs(range.endDate);
+      if (start.isValid() && end.isValid() && !end.isBefore(start)) {
+        return Math.max(1, end.diff(start, 'day') + 1);
+      }
+    }
+    return date;
+  }
+
+  private _postAnalyticsCacheSegment(
+    date: number,
+    range?: { startDate?: string; endDate?: string }
+  ): string {
+    if (range?.startDate && range?.endDate) {
+      return `${range.startDate}_${range.endDate}`;
+    }
+    return String(date);
   }
 
   async getStatistics(orgId: string, id: string) {

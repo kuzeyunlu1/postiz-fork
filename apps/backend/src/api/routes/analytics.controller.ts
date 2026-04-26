@@ -17,17 +17,30 @@ export class AnalyticsController {
   async getIntegration(
     @GetOrgFromRequest() org: Organization,
     @Param('integration') integration: string,
-    @Query('date') date: string
+    @Query('date') date: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string
   ) {
-    return this._integrationService.checkAnalytics(org, integration, date);
+    return this._integrationService.checkAnalytics(
+      org,
+      integration,
+      date,
+      false,
+      { startDate, endDate }
+    );
   }
 
   @Get('/post/:postId')
   async getPostAnalytics(
     @GetOrgFromRequest() org: Organization,
     @Param('postId') postId: string,
-    @Query('date') date: string
+    @Query('date') date: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string
   ) {
-    return this._postsService.checkPostAnalytics(org.id, postId, +date);
+    return this._postsService.checkPostAnalytics(org.id, postId, +date, false, {
+      startDate,
+      endDate,
+    });
   }
 }

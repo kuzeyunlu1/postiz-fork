@@ -330,7 +330,8 @@ export class IntegrationService {
     org: Organization,
     integration: string,
     date: string,
-    forceRefresh = false
+    forceRefresh = false,
+    range?: { startDate?: string; endDate?: string }
   ): Promise<AnalyticsData[]> {
     const getIntegration = await this.getIntegrationById(org.id, integration);
 
@@ -371,9 +372,15 @@ export class IntegrationService {
       }
     }
 
-    const getIntegrationData = await ioRedis.get(
-      `integration:${org.id}:${integration}:${date}`
-    );
+    // EOMA Sprint 5 patch: when an explicit ISO date range is supplied
+    // (`startDate`/`endDate` from the analytics endpoint), prefer the derived
+    // day-count window over the bare `?date=` param. Providers still receive a
+    // single integer (existing interface contract); the cache key embeds both
+    // boundaries so distinct ranges don't collide.
+    const dayWindow = this._resolveAnalyticsDayWindow(date, range);
+    const cacheKey = `integration:${org.id}:${integration}:${this._analyticsCacheSegment(date, range)}`;
+
+    const getIntegrationData = await ioRedis.get(cacheKey);
     if (getIntegrationData) {
       return JSON.parse(getIntegrationData);
     }
@@ -383,10 +390,10 @@ export class IntegrationService {
         const loadAnalytics = await integrationProvider.analytics(
           getIntegration.internalId,
           getIntegration.token,
-          +date
+          dayWindow
         );
         await ioRedis.set(
-          `integration:${org.id}:${integration}:${date}`,
+          cacheKey,
           JSON.stringify(loadAnalytics),
           'EX',
           !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
@@ -396,12 +403,42 @@ export class IntegrationService {
         return loadAnalytics;
       } catch (e) {
         if (e instanceof RefreshToken) {
-          return this.checkAnalytics(org, integration, date, true);
+          return this.checkAnalytics(org, integration, date, true, range);
         }
       }
     }
 
     return [];
+  }
+
+  // EOMA Sprint 5 patch: derive the day-window number that the provider
+  // analytics interface expects. When both boundaries are present and parse,
+  // use the inclusive day-count between them; otherwise fall back to the
+  // existing `+date` behavior.
+  private _resolveAnalyticsDayWindow(
+    date: string,
+    range?: { startDate?: string; endDate?: string }
+  ): number {
+    if (range?.startDate && range?.endDate) {
+      const start = dayjs(range.startDate);
+      const end = dayjs(range.endDate);
+      if (start.isValid() && end.isValid() && !end.isBefore(start)) {
+        return Math.max(1, end.diff(start, 'day') + 1);
+      }
+    }
+    return +date;
+  }
+
+  // EOMA Sprint 5 patch: build the redis cache key segment so that an explicit
+  // range never collides with a `?date=` window of the same day-count.
+  private _analyticsCacheSegment(
+    date: string,
+    range?: { startDate?: string; endDate?: string }
+  ): string {
+    if (range?.startDate && range?.endDate) {
+      return `${range.startDate}_${range.endDate}`;
+    }
+    return date;
   }
 
   customers(orgId: string) {
