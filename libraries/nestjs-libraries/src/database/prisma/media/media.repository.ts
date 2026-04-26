@@ -72,6 +72,30 @@ export class MediaRepository {
     });
   }
 
+  // EOMA Sprint 5 patch: alt-text-only edit for `PUT /media/:id`. Same
+  // composite-id ownership pattern as `saveMediaInformation` — Prisma rejects
+  // the update when the (id, organizationId) pair doesn't match a row.
+  updateAlt(org: string, id: string, alt: string) {
+    return this._media.model.media.update({
+      where: {
+        id,
+        organizationId: org,
+      },
+      data: {
+        alt,
+      },
+      select: {
+        id: true,
+        name: true,
+        originalName: true,
+        alt: true,
+        thumbnail: true,
+        path: true,
+        thumbnailTimestamp: true,
+      },
+    });
+  }
+
   async getMedia(org: string, page: number, search?: string) {
     const pageNum = (page || 1) - 1;
     const trimmedSearch = search?.trim();

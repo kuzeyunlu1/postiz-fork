@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   Req,
   Res,
@@ -25,6 +26,7 @@ import { UploadFactory } from '@gitroom/nestjs-libraries/upload/upload.factory';
 import { SaveMediaInformationDto } from '@gitroom/nestjs-libraries/dtos/media/save.media.information.dto';
 import { VideoDto } from '@gitroom/nestjs-libraries/dtos/videos/video.dto';
 import { VideoFunctionDto } from '@gitroom/nestjs-libraries/dtos/videos/video.function.dto';
+import { UpdateMediaAltDto } from '@gitroom/nestjs-libraries/dtos/media/update.media.alt.dto';
 
 @ApiTags('Media')
 @Controller('/media')
@@ -38,6 +40,18 @@ export class MediaController {
   @Delete('/:id')
   deleteMedia(@GetOrgFromRequest() org: Organization, @Param('id') id: string) {
     return this._mediaService.deleteMedia(org.id, id);
+  }
+
+  // EOMA Sprint 5 patch: alt-text inline edit from the EOMA Media library
+  // surface. Ownership scoping happens inside the repository update via the
+  // `(id, organizationId)` composite-key `where`.
+  @Put('/:id')
+  updateMediaAlt(
+    @GetOrgFromRequest() org: Organization,
+    @Param('id') id: string,
+    @Body() body: UpdateMediaAltDto
+  ) {
+    return this._mediaService.updateAlt(org.id, id, body.alt);
   }
 
   @Post('/generate-video')

@@ -64,6 +64,11 @@ export class MediaService {
     return this._mediaRepository.saveMediaInformation(org, data);
   }
 
+  // EOMA Sprint 5 patch: thin pass-through for `PUT /media/:id { alt }`.
+  updateAlt(org: string, id: string, alt: string) {
+    return this._mediaRepository.updateAlt(org, id, alt);
+  }
+
   getVideoOptions() {
     return this._videoManager.getAllVideos();
   }
