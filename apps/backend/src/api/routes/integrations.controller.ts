@@ -377,6 +377,32 @@ export class IntegrationsController {
     throw new Error('Function not found');
   }
 
+  // EOMA Sprint 5 patch: explicit "Refresh channel" CTA from the EOMA
+  // Analytics surface. Wraps `RefreshIntegrationService.refresh()` with the
+  // same ownership guard pattern other `/:id/*` integration routes use
+  // (load via `getIntegrationById(org.id, id)` — the repository scopes the
+  // lookup to the org, so a foreign integration id resolves to null).
+  @Post('/:id/refresh')
+  async refreshIntegration(
+    @GetOrgFromRequest() org: Organization,
+    @Param('id') id: string
+  ) {
+    const integration = await this._integrationService.getIntegrationById(
+      org.id,
+      id
+    );
+    if (!integration) {
+      throw new Error('Invalid integration');
+    }
+
+    const result = await this._refreshIntegrationService.refresh(integration);
+    if (!result) {
+      throw new Error('Refresh failed');
+    }
+
+    return { success: true };
+  }
+
   @Post('/disable')
   disableChannel(
     @GetOrgFromRequest() org: Organization,
