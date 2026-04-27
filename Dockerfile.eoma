@@ -32,5 +32,9 @@ RUN touch /app/.env
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
   CMD node -e "fetch('http://localhost:3000/').then(r=>{if(!r.ok)throw r.status}).catch(()=>process.exit(1))"
 
-# Run prisma migrations, then start backend + orchestrator via PM2
-CMD ["sh", "-c", "pnpm run prisma-db-push && pm2 start pnpm --name backend -- --filter ./apps/backend start && pm2 start pnpm --name orchestrator -- --filter ./apps/orchestrator start && pm2 logs"]
+# Run prisma migrations, then start backend + orchestrator via PM2.
+# Backend boot uses a 30s sleep before starting orchestrator so the heavier
+# backend process has exclusive headroom to load its ~800 deps. Without this,
+# both processes race for memory at boot and the OOM killer silently SIGKILLs
+# backend after EOMA: [1/6] roughly half the time on env-var-triggered redeploys.
+CMD ["sh", "-c", "pnpm run prisma-db-push && pm2 start pnpm --name backend -- --filter ./apps/backend start && sleep 30 && pm2 start pnpm --name orchestrator -- --filter ./apps/orchestrator start && pm2 logs"]
